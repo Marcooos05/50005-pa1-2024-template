@@ -74,9 +74,11 @@ void type_prompt()
   char *user=getenv("USER");
   char cwd[PATH_MAX];
   getcwd(cwd, sizeof(cwd));
-
   fflush(stdout); // Flush the output buffer
-  printf("\e[1;34m%s@%s:\e[1;31m%s\e[0m $$ ", user, uts.nodename, cwd);  // Print the shell prompt
+
+  char prompt_text[PATH_MAX*2];
+  snprintf(prompt_text, sizeof(prompt_text), "\e[1;34m%s@%s:\e[1;31m %s", user, uts.nodename, cwd);
+  printf("%s %s $$ ", prompt_text, text_color);  // Print the shell prompt
 }
 
 /*
@@ -154,6 +156,9 @@ int shell_usage(char **args) {
   else if (strcmp(args[1], "unsetenv") == 0){
       printf("Type: unsetenv ENV to remove this env from the list of env variables\n");
     }
+  else if (strcmp(args[1], "color") == 0){
+      printf("Type: color COLOR to change the color of text input\n");
+    }
   else {
     printf("The command you gave: %s, is not part of the CSEShell's builtin command\n", args[1]);
     }
@@ -201,8 +206,116 @@ int unset_env_var(char **args) {
     return 1; // Return 1 to continue running the shell
 }
 
-void process_rc_file(){
+void shell_no_bold(char *args){
+  if (strcmp(args, "black") == 0){
+      text_color = COLOR_BLACK;
+    }
+  else if (strcmp(args, "red") == 0){
+      text_color = COLOR_RED_BOLD;
+    }
+  else if (strcmp(args, "green") == 0){
+      text_color = COLOR_GREEN;
+    }
+  else if (strcmp(args, "yellow") == 0){
+      text_color = COLOR_YELLOW;
+    }
+  else if (strcmp(args, "blue") == 0){
+      text_color = COLOR_BLUE;
+    }
+  else if (strcmp(args, "magenta") == 0){
+      text_color = COLOR_MAGENTA;
+    }
+  else if (strcmp(args, "cyan") == 0){
+      text_color =  COLOR_CYAN;
+    }
+  else if (strcmp(args, "white") == 0){
+      text_color =  COLOR_WHITE;
+    }
+  else {
+    printf("The command you gave: %s, is not part of the CSEShell's builtin command\n", args);
+    return;
+    }
+  printf("Set color of input to %s\n", args);
+}
 
+void shell_bold(char *args){
+  if (strcmp(args, "black") == 0){
+      text_color = COLOR_BLACK_BOLD;
+    }
+  else if (strcmp(args, "red") == 0){
+      text_color = COLOR_RED_BOLD;
+    }
+  else if (strcmp(args, "green") == 0){
+      text_color = COLOR_GREEN_BOLD;
+    }
+  else if (strcmp(args, "yellow") == 0){
+      text_color = COLOR_YELLOW_BOLD;
+    }
+  else if (strcmp(args, "blue") == 0){
+      text_color = COLOR_BLUE_BOLD;
+    }
+  else if (strcmp(args, "magenta") == 0){
+      text_color = COLOR_MAGENTA_BOLD;
+    }
+  else if (strcmp(args, "cyan") == 0){
+      text_color =  COLOR_CYAN_BOLD;
+    }
+  else if (strcmp(args, "white") == 0){
+      text_color =  COLOR_WHITE_BOLD;
+    }
+  else {
+    printf("The command you gave: %s, is not part of the CSEShell's builtin command\n", args);
+    return;
+    }
+  printf("Set color of input to %s\n", args);
+}
+
+int shell_color(char **args) {
+  if (args[1] == NULL) {
+      printf("Command not given. Type color <color option>.\n");
+    } 
+  else if (strcmp(args[1], "reset") == 0)
+  {
+    text_color = COLOR_RESET;
+  }
+  
+  else if (args[2] == NULL || strcmp(args[2], "bold") != 0)
+  {
+    shell_no_bold(args[1]);
+  }
+  else
+  {
+    shell_bold(args[1]);
+  }
+    return 1; // Return 1 to continue running the shell
+}
+
+int shell_resource(){
+    char cmd[PATH_MAX];
+    snprintf(cmd, sizeof(cmd), "ps -p %d -o %%cpu,%%mem,cmd", getpid());
+
+    // Execute the command and read the output
+    FILE *fp;
+    char output[1024];
+
+    fp = popen(cmd, "r");
+    if (fp == NULL) {
+        printf("Failed to run command\n");
+        exit(1);
+    }
+
+    // Read the output from the command
+    while (fgets(output, sizeof(output), fp) != NULL) {
+        printf("%s", output);
+    }
+
+    // Close the pipe
+    pclose(fp);
+    return 0;
+}
+
+void process_rc_file(){
+  
   const char *filePath = ".cseshellrc";
   FILE *file = fopen(filePath, "r");
     if (file == NULL)
@@ -348,8 +461,11 @@ int main(void)
     else{
       
       int status, child_exit_status;
+      // waitpid(pid, &status, WUNTRACED); //original waitpid code
 
-      waitpid(pid, &status, WUNTRACED);
+      struct rusage usage;
+      wait4(pid, &status, 0, &usage);
+      
       //printf(("parent process\n")); //debugging line of code
       // if child terminates properly,
       if (WIFEXITED(status))
@@ -360,9 +476,13 @@ int main(void)
           free(cmd[i]);
           cmd[i] = NULL;
         }
-      }
+      } // checks child_exit_status and do something about it
 
-      // checks child_exit_status and do something about it
+      printf("CPU time used: User = %ld.%06lds, System = %ld.%06lds\n",
+               (long)usage.ru_utime.tv_sec, (long)usage.ru_utime.tv_usec,
+               (long)usage.ru_stime.tv_sec, (long)usage.ru_stime.tv_usec);
+      
+      shell_resource();
     }
   }
   return 0;

@@ -1,65 +1,97 @@
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <dirent.h>
-#include <errno.h>
-/* "readdir" etc. are defined here. */
-#include <dirent.h>
-/* limits.h defines "PATH_MAX". */
-#include <limits.h>
-#include <ctype.h>
-#include <signal.h>
-#include <sys/stat.h>
-#include <syslog.h>
-#include <time.h>
-#include <fcntl.h>
+#include <stdlib.h>
+#include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/types.h>
-#include <pwd.h>
-#include <sys/utsname.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <string.h>
+#define PATH_MAX 4096 
 
-#include <sys/sysinfo.h>
-#include <stdio.h>
+void execute_command(char *command) {
+    struct rusage usage;
+    int status;
+    pid_t pid = fork();
 
-int main(){
+    if (pid == 0) {
+        // In child process
+        execlp(command, command, (char *)NULL);
+        perror("execlp");
+        exit(EXIT_FAILURE);
+    } else if (pid > 0) {
+        // In parent process
+        wait4(pid, &status, 0, &usage);
 
-    char *backup_dir = "./files";
+        if (WIFEXITED(status)) {
+            printf("Command executed successfully with exit status %d\n", WEXITSTATUS(status));
+        } else {
+            printf("Command execution failed\n");
+        }
 
-    if (!backup_dir) {
-        fprintf(stderr, "BACKUP_DIR environment variable is not set.\n");
-        return 1;
+        printf("CPU time used: User = %ld.%06lds, System = %ld.%06lds\n",
+               usage.ru_utime.tv_sec, usage.ru_utime.tv_usec,
+               usage.ru_stime.tv_sec, usage.ru_stime.tv_usec);
+        printf("Maximum resident set size: %ld KB\n", usage.ru_maxrss);
+        printf("Integral shared memory size: %ld KB\n", usage.ru_ixrss);
+        printf("Integral unshared data size: %ld KB\n", usage.ru_idrss);
+        printf("Integral unshared stack size: %ld KB\n", usage.ru_isrss);
+        printf("Page reclaims (soft page faults): %ld\n", usage.ru_minflt);
+        printf("Page faults (hard page faults): %ld\n", usage.ru_majflt);
+        printf("Swaps: %ld\n", usage.ru_nswap);
+        printf("Block input operations: %ld\n", usage.ru_inblock);
+        printf("Block output operations: %ld\n", usage.ru_oublock);
+        printf("IPC messages sent: %ld\n", usage.ru_msgsnd);
+        printf("IPC messages received: %ld\n", usage.ru_msgrcv);
+        printf("Signals received: %ld\n", usage.ru_nsignals);
+        printf("Voluntary context switches: %ld\n", usage.ru_nvcsw);
+        printf("Involuntary context switches: %ld\n", usage.ru_nivcsw);
+    } else {
+        // fork failed
+        perror("fork");
+        exit(EXIT_FAILURE);
     }
+}
 
+int main() {
+    for (int i = 0; i<10000; i++){
+    char command[PATH_MAX];
+    snprintf(command, sizeof(command), "ps -p %d -o %%cpu,%%mem,cmd", getpid());
+
+    // Execute the command and read the output
     FILE *fp;
-    char date[1024];
+    char output[1024];
 
-    fp = popen("date '+%Y%m%d%H%M%S'", "r");
+    fp = popen(command, "r");
     if (fp == NULL) {
         printf("Failed to run command\n");
         exit(1);
     }
-    fgets(date, sizeof(date), fp);
-    date[strcspn(date, " \n")] = 0;
 
+    // Read the output from the command
+    while (fgets(output, sizeof(output), fp) != NULL) {
+        printf("%s", output);
+    }
+
+    // Close the pipe
     pclose(fp);
 
-    char zip_cmd[PATH_MAX];
+    
+    }
+    // char command[256];
+    // while (1) {
+    //     printf("shell> ");
+    //     if (fgets(command, sizeof(command), stdin) == NULL) {
+    //         break;
+    //     }
 
-    snprintf(zip_cmd, sizeof(zip_cmd), "zip -r backup-%s.zip %s", date, backup_dir);
+    //     // Remove newline character from the command
+    //     command[strcspn(command, "\n")] = '\0';
 
-    printf(zip_cmd);
+    //     if (strcmp(command, "exit") == 0) {
+    //         break;
+    //     }
 
-    // char zipname[1024] = "backup-";
-    // 
-    // strcat(zipname, date);
-    // strcat(zipname, ".zip ");
-
-    // char command[1024] = "zip -r ";
-
-    // strcat(command, zipname);
-    // strcat(command, backup_dir);
-    // system(command);
+    //     execute_command(command);
+    // }
+    return 0;
 }
