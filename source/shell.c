@@ -65,12 +65,211 @@ void type_prompt()
 #ifdef _WIN32
     system("cls"); // Windows command to clear screen
 #else
-    system("clear"); // UNIX/Linux command to clear screen
+    //system("clear"); // UNIX/Linux command to clear screen
 #endif
     first_time = 0;
   }
+  struct utsname uts;
+  uname(&uts);
+  char *user=getenv("USER");
+  char cwd[PATH_MAX];
+  getcwd(cwd, sizeof(cwd));
+
   fflush(stdout); // Flush the output buffer
-  printf("$$ ");  // Print the shell prompt
+  printf("\e[1;34m%s@%s:\e[1;31m%s\e[0m $$ ", user, uts.nodename, cwd);  // Print the shell prompt
+}
+
+/*
+Helper Function
+*/
+
+int num_builtin_functions()
+  {
+    return sizeof(builtin_commands) / sizeof(char *);
+  };
+
+int execute_builtin_command(char **args) {
+  // Loop through our command list and check if the commands exist in the builtin command list, function to return -1 if builtin command does not exist
+  for (int command_index = 0; command_index < num_builtin_functions(); command_index++) {
+    if (strcmp(args[0], builtin_commands[command_index]) == 0) {
+      // Execute the builtin command
+      return (*builtin_command_func[command_index])(args); //return 1 when builtin command successfully run
+    }
+  }
+  return 0; // Return -1 if the command is not a builtin command
+}
+
+/*
+EXTRA Built-In Commands
+The shell must be expanded support the following 7 builtin commands: cd, help, exit, usage, env, setenv, unsetenv
+Handler of each shell builtin function
+*/
+int shell_cd(char **args) {
+    if (args[1] == NULL) {
+      chdir(getenv("HOME"));
+      //fprintf(stderr, "shell: expected argument to \"cd\"\n");
+    } else {
+        if (chdir(args[1]) != 0) {
+            perror("cd");
+        }
+    }
+    return 1; // Return 1 to continue running the shell
+}
+
+int shell_help(char **args) {
+    printf("CSEShell Interface\nUsage: command arguments\nThe following commands are implemented within the shell:\n");
+    for (int i = 0; i < num_builtin_functions(); i++) {
+        printf("%s\n", builtin_commands[i]);
+    }
+    return 1; // Return 1 to continue running the shell
+}
+
+int shell_exit(char **args) {
+    exit(0); // Exit the shell
+    return 1; // Add return statement for consistency
+}
+
+int shell_usage(char **args) {
+  if (args[1] == NULL) {
+      printf("Command not given. Type usage <command>.\n");
+    } 
+  else if (strcmp(args[1], "cd") == 0){
+      printf("Type: cd directory_name to change the current working directory of the shell\n");
+    }
+  else if (strcmp(args[1], "help") == 0){
+      printf("Type: help for supported commands\n");
+    }
+  else if (strcmp(args[1], "exit") == 0){
+      printf("Type: exit to terminate the shell gracefully\n");
+    }
+  else if (strcmp(args[1], "usage") == 0){
+      printf("Type: usage cd/help/exit\n");
+    }
+  else if (strcmp(args[1], "env") == 0){
+      printf("Type: env to list all registered env variables\n");
+    }
+  else if (strcmp(args[1], "setenv") == 0){
+      printf("Type: setenv ENV=VALUE to set a new env variable\n");
+    }
+  else if (strcmp(args[1], "unsetenv") == 0){
+      printf("Type: unsetenv ENV to remove this env from the list of env variables\n");
+    }
+  else {
+    printf("The command you gave: %s, is not part of the CSEShell's builtin command\n", args[1]);
+    }
+    return 1; // Return 1 to continue running the shell
+}
+
+int list_env(char **args){
+  extern char **environ;
+  char **env = environ;
+  while (*env) { // Loop until NULL pointer is encountered
+        printf("%s\n", *env); // Print the current environment variable
+        env++; // Move to the next environment variable
+    }
+  return 1;
+}
+
+int set_env_var(char **args) {
+    if (args[1] == NULL) {
+        fprintf(stderr, "shell: expected argument to \"setenv\"\n");
+        return 1;
+    }
+
+    char *key = strtok(args[1], "=");
+    char *value = strtok(NULL, "=");
+
+    if (key && value) {
+        if (setenv(key, value, 1) != 0) {
+            perror("shell");
+        }
+    } else {
+        fprintf(stderr, "shell: invalid format for \"setenv\"\n");
+    }
+
+    return 1;
+}
+
+int unset_env_var(char **args) {
+    if (args[1] == NULL) {
+        fprintf(stderr, "shell: expected argument to \"unsetenv\"\n");
+    } else {
+        if (unsetenv(args[1]) != 0) {
+            perror("unsetenv");
+        }
+    }
+    return 1; // Return 1 to continue running the shell
+}
+
+void process_rc_file(){
+
+  const char *filePath = ".cseshellrc";
+  FILE *file = fopen(filePath, "r");
+    if (file == NULL)
+    {
+        perror("Failed to open file");
+        return;
+    }
+
+  //SUCCESSFULLY OPEN FILE
+    char line[MAX_LINE];
+
+    while (fgets(line, sizeof(line), file))
+    {
+      //skip program if line is empty
+      if (strcmp(line, "\n") == 0){
+       continue;
+      }
+
+      //clear all trailing whitespaces
+      line[strcspn(line, " \n")] = 0;
+      
+      if (strncmp(line, "PATH=", 5) == 0) {
+          if (setenv("PATH", line + 5, 1) != 0) {
+            perror("Failed to set PATH");
+          } else {
+              // Debug: Confirm PATH is set
+              printf("PATH set to: %s\n", getenv("PATH"));
+          }
+      }
+
+      else{
+
+        pid_t pid = fork();
+
+        if (pid < 0){
+          perror("Failed to fork. \n");
+          exit(1);
+        }
+        if (pid == 0){
+          //child process
+          char *cmd[MAX_ARGS];
+          char *token= strtok(line, " ");
+          //printf(line);
+          int i = 0;
+          while (token != NULL && i < MAX_ARGS - 1) {
+              cmd[i++] = token;
+              token = strtok(NULL, " ");
+          }
+          cmd[i] = NULL;
+
+          printf("Executing command: %s\n", cmd[0]);
+
+          execvp(cmd[0], cmd);
+
+          perror("execvp failed");
+          _exit(1);
+        }
+        else {
+          //parent process
+          int status;
+          waitpid(pid, &status, 0);
+
+          //printf("parent process running\n");
+        }
+      }
+    }
+  fclose(file);
 }
 
 // The main function where the shell's execution begins
@@ -80,41 +279,91 @@ int main(void)
   char *cmd[MAX_ARGS];
   int child_status;
   pid_t pid;
+  process_rc_file();
 
-  type_prompt();     // Display the prompt
-  read_command(cmd); // Read a command from the user
+  while (1){
+    type_prompt();     // Display the prompt
+    read_command(cmd); // Read a command from the user
 
-  // If the command is "exit", break out of the loop to terminate the shell
-  if (strcmp(cmd[0], "exit") == 0)
-    // break;
-    return 0;
+    //continue while loop if no arguments
+    if(cmd[0] == NULL){
+      continue;
+    }
 
-  // Formulate the full path of the command to be executed
-  char full_path[PATH_MAX];
-  char cwd[1024];
-  if (getcwd(cwd, sizeof(cwd)) != NULL)
-  {
+    //in-built exit command
+    // if (strcmp(cmd[0], "exit") == 0){
+    //   // break;
+    //   return 0;
+    // }
 
-    snprintf(full_path, sizeof(full_path), "%s/bin/%s", cwd, cmd[0]);
+    if (execute_builtin_command(cmd) == 1) {
+      for (int i = 0; cmd[i] != NULL; i++)
+      {
+        free(cmd[i]);
+        cmd[i] = NULL;
+      }
+      continue; // Go to the next iteration of the loop
+    }
+
+    pid = fork();
+
+    // if pid < 0 failed to fork
+    if (pid < 0){
+       perror("Failed to fork. \n");
+       exit(1);
+    }
+
+    // if pid == 0, child process
+    if (pid == 0){
+      // Formulate the full path of the command to be executed
+      char full_path[PATH_MAX];
+      char cwd[1024];
+  
+      if (getcwd(cwd, sizeof(cwd)) != NULL)
+      {
+        snprintf(full_path, sizeof(full_path), "%s/bin/%s", cwd, cmd[0]);
+      }
+      else
+      {
+        printf("Failed to get current working directory.");
+        exit(1);
+      }
+
+      execv(full_path, cmd);
+
+      // If execv returns, command execution has failed
+      printf("Command %s not found\n", cmd[0]);
+
+      // Free the allocated memory for the command arguments before exiting
+      for (int i = 0; cmd[i] != NULL; i++)
+      {
+        free(cmd[i]);
+        cmd[i] = NULL;
+      }
+      memset(cwd, '\0', sizeof(cwd)); // clear the cwd array
+      exit(1);
+    }
+
+    // if pid != 0, parent process
+    else{
+      
+      int status, child_exit_status;
+
+      waitpid(pid, &status, WUNTRACED);
+      //printf(("parent process\n")); //debugging line of code
+      // if child terminates properly,
+      if (WIFEXITED(status))
+      {
+        child_exit_status = WEXITSTATUS(status);
+        for (int i = 0; cmd[i] != NULL; i++)
+        {
+          free(cmd[i]);
+          cmd[i] = NULL;
+        }
+      }
+
+      // checks child_exit_status and do something about it
+    }
   }
-  else
-  {
-    printf("Failed to get current working directory.");
-    exit(1);
-  }
-
-  execv(full_path, cmd);
-
-  // If execv returns, command execution has failed
-  printf("Command %s not found\n", cmd[0]);
-  exit(0);
-
-  // Free the allocated memory for the command arguments before exiting
-  for (int i = 0; cmd[i] != NULL; i++)
-  {
-    free(cmd[i]);
-  }
-  memset(cwd, '\0', sizeof(cwd)); // clear the cwd array
-
   return 0;
 }

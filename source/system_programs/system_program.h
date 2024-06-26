@@ -21,6 +21,9 @@
 #include <pwd.h>
 #include <sys/utsname.h>
 
+#include <sys/sysinfo.h>
+#include <stdio.h>
+
 #define _GNU_SOURCE
 
 #define SHELL_BUFFERSIZE 256
