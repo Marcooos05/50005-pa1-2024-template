@@ -38,6 +38,13 @@
 
 #define COLOR_RESET "\e[0m"
 
+#define USER_LIGHT "\e[1;47;36m"
+#define PATH_LIGHT "\e[1;47;35m"
+#define COLOR_BLACK_WHITEBG "\e[0;47;30m"
+#define USER_DARK "\e[1;40;32m"
+#define PATH_DARK "\e[1;40;33m"
+#define COLOR_WHITE_BLACKBG "\e[0;40;37m"
+
 char *text_color = COLOR_RESET;
 char *user_color = COLOR_BLUE_BOLD;
 char *path_color = COLOR_RED;
@@ -50,7 +57,8 @@ const char *builtin_commands[] = {
     "env", // Lists all the environment variables currently set in the shell
     "setenv", // Sets or modifies an environment variable for this shell session
     "unsetenv", // Removes an environment variable from the shell
-    "color"
+    "color",
+    "theme"
     };
 
 /*
@@ -66,6 +74,7 @@ int unset_env_var(char **args);
 int shell_color(char **args);
 void shell_no_bold(char *args);
 void shell_bold(char *args);
+int shell_theme(char **args);
 
 /*** This is array of functions, with argument char ***/
 int (*builtin_command_func[])(char **) = {
@@ -76,5 +85,6 @@ int (*builtin_command_func[])(char **) = {
     &list_env,     // builtin_command_func[4]: env
     &set_env_var,  // builtin_command_func[5]: setenv
     &unset_env_var, // builtin_command_func[6]: unsetenv
-    &shell_color
+    &shell_color,
+    &shell_theme
 };

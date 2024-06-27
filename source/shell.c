@@ -159,6 +159,9 @@ int shell_usage(char **args) {
   else if (strcmp(args[1], "color") == 0){
       printf("Type: color COLOR to change the color of text input\n");
     }
+  else if (strcmp(args[1], "theme") == 0){
+      printf("Type: theme THEME to change the theme of prompt\n");
+    }
   else {
     printf("The command you gave: %s, is not part of the CSEShell's builtin command\n", args[1]);
     }
@@ -204,6 +207,39 @@ int unset_env_var(char **args) {
         }
     }
     return 1; // Return 1 to continue running the shell
+}
+
+int shell_theme(char **args) {
+  if (args[1] == NULL) {
+      printf("Command not given. Type theme <theme option>.\n");
+    } 
+  else if (strcmp(args[1], "reset") == 0)
+  {
+    user_color = COLOR_BLUE_BOLD;
+    path_color = COLOR_RED;
+    text_color = COLOR_RESET;
+    printf("Theme reset\n");
+  }
+  
+  else if (strcmp(args[1], "light") == 0)
+  {
+    user_color = USER_LIGHT;
+    path_color = PATH_LIGHT;
+    text_color = COLOR_BLACK_WHITEBG;
+  printf("Theme set to light\n");
+  }
+  else if (strcmp(args[1], "dark") == 0)
+  {
+    user_color = USER_DARK;
+    path_color = PATH_DARK;
+    text_color = COLOR_WHITE_BLACKBG;
+    printf("Theme set to dark\n");
+  }
+  else{
+    printf("The command you gave: %s, is not part of the CSEShell's builtin command\n", args[1]);
+    return 0;
+  }
+  return 1; // Return 1 to continue running the shell
 }
 
 void shell_no_bold(char *args){

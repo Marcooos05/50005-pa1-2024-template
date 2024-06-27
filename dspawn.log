@@ -238,3 +238,39 @@ PID 874523 Daemon writing line 6 to the file.
 PID 874523 Daemon writing line 7 to the file.  
 PID 874523 Daemon writing line 8 to the file.  
 PID 874523 Daemon writing line 9 to the file.  
+Daemon process running with PID: 667, PPID: 394, opening logfile with FD 3
+Current working directory: /
+PID 667 Daemon writing line 0 to the file.  
+Daemon process running with PID: 698, PPID: 394, opening logfile with FD 3
+Current working directory: /
+PID 698 Daemon writing line 0 to the file.  
+Daemon process running with PID: 714, PPID: 394, opening logfile with FD 3
+Current working directory: /
+PID 714 Daemon writing line 0 to the file.  
+PID 667 Daemon writing line 1 to the file.  
+PID 698 Daemon writing line 1 to the file.  
+PID 714 Daemon writing line 1 to the file.  
+PID 667 Daemon writing line 2 to the file.  
+PID 698 Daemon writing line 2 to the file.  
+PID 714 Daemon writing line 2 to the file.  
+PID 667 Daemon writing line 3 to the file.  
+PID 698 Daemon writing line 3 to the file.  
+PID 714 Daemon writing line 3 to the file.  
+PID 667 Daemon writing line 4 to the file.  
+PID 698 Daemon writing line 4 to the file.  
+PID 714 Daemon writing line 4 to the file.  
+PID 667 Daemon writing line 5 to the file.  
+PID 698 Daemon writing line 5 to the file.  
+PID 714 Daemon writing line 5 to the file.  
+PID 667 Daemon writing line 6 to the file.  
+PID 698 Daemon writing line 6 to the file.  
+PID 714 Daemon writing line 6 to the file.  
+PID 667 Daemon writing line 7 to the file.  
+PID 698 Daemon writing line 7 to the file.  
+PID 714 Daemon writing line 7 to the file.  
+PID 667 Daemon writing line 8 to the file.  
+PID 698 Daemon writing line 8 to the file.  
+PID 714 Daemon writing line 8 to the file.  
+PID 667 Daemon writing line 9 to the file.  
+PID 698 Daemon writing line 9 to the file.  
+PID 714 Daemon writing line 9 to the file.  
