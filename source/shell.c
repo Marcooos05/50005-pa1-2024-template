@@ -408,7 +408,7 @@ int fork_env(){
       int status;
       waitpid(pid, &status, WUNTRACED);
 
-      printf("\e[1;47;32mREMEMBER TO BE \e[3;32m~ECO FRIENDLY`~\e[0;0m\n Watch this https://www.youtube.com/watch?v=SQ2ufFGm9xE\n");
+      printf("\e[1;47;32mREMEMBER TO BE \e[3;32m~ECO FRIENDLY`~\e[0;0m\nWatch this https://www.youtube.com/watch?v=SQ2ufFGm9xE\n");
     }
     return 0;
 }
@@ -461,17 +461,9 @@ int main(void)
     if (pid == 0){
       // Formulate the full path of the command to be executed
       char full_path[PATH_MAX];
-      char cwd[1024];
-  
-      if (getcwd(cwd, sizeof(cwd)) != NULL)
-      {
-        snprintf(full_path, sizeof(full_path), "%s/bin/%s", cwd, cmd[0]);
-      }
-      else
-      {
-        printf("Failed to get current working directory.");
-        exit(1);
-      }
+      char cwd[1024] = WORK_DIR;
+      
+      snprintf(full_path, sizeof(full_path), "%s/bin/%s", cwd, cmd[0]);
 
       execv(full_path, cmd);
 

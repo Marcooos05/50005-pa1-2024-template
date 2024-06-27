@@ -16,6 +16,7 @@
 #define MAX_ARGS 64
 #define BIN_PATH "./bin/"
 #define PATH_MAX 4096 
+#define WORK_DIR "/home/marcu/50005-pa1-2024-template"
 
 const char *builtin_commands[] = {
     "cd",    // Changes the current directory of the shell to the specified path. If no path is given, it defaults to the user's home directory.
