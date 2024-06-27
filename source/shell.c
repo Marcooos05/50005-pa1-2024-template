@@ -77,8 +77,8 @@ void type_prompt()
   fflush(stdout); // Flush the output buffer
 
   char prompt_text[PATH_MAX*2];
-  snprintf(prompt_text, sizeof(prompt_text), "\e[1;34m%s@%s:\e[1;31m %s", user, uts.nodename, cwd);
-  printf("%s %s $$ ", prompt_text, text_color);  // Print the shell prompt
+  snprintf(prompt_text, sizeof(prompt_text), "%s%s@%s:%s %s", user_color, user, uts.nodename,path_color, cwd);
+  printf("%s%s $$ ", prompt_text, text_color);  // Print the shell prompt
 }
 
 /*

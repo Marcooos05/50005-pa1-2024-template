@@ -18,6 +18,30 @@
 #define PATH_MAX 4096 
 #define WORK_DIR "/home/marcu/50005-pa1-2024-template"
 
+#define COLOR_BLACK "\e[0;30m"
+#define COLOR_RED "\e[0;31m"
+#define COLOR_GREEN "\e[0;32m"
+#define COLOR_YELLOW "\e[0;33m"
+#define COLOR_BLUE "\e[0;34m"
+#define COLOR_MAGENTA "\e[0;35m"
+#define COLOR_CYAN "\e[0;36m"
+#define COLOR_WHITE "\e[0;37m"
+
+#define COLOR_BLACK_BOLD "\e[1;30m"
+#define COLOR_RED_BOLD "\e[1;31m"
+#define COLOR_GREEN_BOLD "\e[1;32m"
+#define COLOR_YELLOW_BOLD "\e[1;33m"
+#define COLOR_BLUE_BOLD "\e[1;34m"
+#define COLOR_MAGENTA_BOLD "\e[1;35m"
+#define COLOR_CYAN_BOLD "\e[1;36m"
+#define COLOR_WHITE_BOLD "\e[1;37m"
+
+#define COLOR_RESET "\e[0m"
+
+char *text_color = COLOR_RESET;
+char *user_color = COLOR_BLUE_BOLD;
+char *path_color = COLOR_RED;
+
 const char *builtin_commands[] = {
     "cd",    // Changes the current directory of the shell to the specified path. If no path is given, it defaults to the user's home directory.
     "help",  //  List all builtin commands in the shell
@@ -54,25 +78,3 @@ int (*builtin_command_func[])(char **) = {
     &unset_env_var, // builtin_command_func[6]: unsetenv
     &shell_color
 };
-
-#define COLOR_BLACK "\e[0;30m"
-#define COLOR_RED "\e[0;31m"
-#define COLOR_GREEN "\e[0;32m"
-#define COLOR_YELLOW "\e[0;33m"
-#define COLOR_BLUE "\e[0;34m"
-#define COLOR_MAGENTA "\e[0;35m"
-#define COLOR_CYAN "\e[0;36m"
-#define COLOR_WHITE "\e[0;37m"
-
-#define COLOR_BLACK_BOLD "\e[1;30m"
-#define COLOR_RED_BOLD "\e[1;31m"
-#define COLOR_GREEN_BOLD "\e[1;32m"
-#define COLOR_YELLOW_BOLD "\e[1;33m"
-#define COLOR_BLUE_BOLD "\e[1;34m"
-#define COLOR_MAGENTA_BOLD "\e[1;35m"
-#define COLOR_CYAN_BOLD "\e[1;36m"
-#define COLOR_WHITE_BOLD "\e[1;37m"
-
-#define COLOR_RESET "\e[0m"
-
-char *text_color = COLOR_RESET;
