@@ -145,6 +145,6 @@ int main(){
         //printf("Parent process with pid %d, pgid %d, session id :%d\n", getpid(), getpgid(getpid()), getsid(getpid()));
 
         //STEP 2
-        return 0;
+        return EXIT_SUCCESS;
     }
 }

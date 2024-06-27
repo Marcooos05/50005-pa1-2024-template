@@ -23,8 +23,8 @@ void getsysinfo(struct sysinfo sys){
         long minutes = total_seconds/60 - hours*60;
 
         printf("Uptime:  %ld Hours %ld Min %ld Sec\n", hours, minutes, seconds);
-        printf("Ram Space:  %ld KB\n", sys.totalram/1000);
-        printf("Swap Space:  %ld KB\n", sys.totalswap/1000);
+        printf("Total Ram Space:  %ld KB\n", sys.totalram/1000);
+        printf("Total Swap Space:  %ld KB\n", sys.totalswap/1000);
     }
 }
 
@@ -58,5 +58,5 @@ int main()
     struct sysinfo sys;
     getsysinfo(sys);
 
-    return 1;
+    return EXIT_SUCCESS;
 }

@@ -63,21 +63,26 @@ void type_prompt()
   {
     // Clear the screen on the first call
 #ifdef _WIN32
-    system("cls"); // Windows command to clear screen
+    //system("cls"); // Windows command to clear screen
 #else
     //system("clear"); // UNIX/Linux command to clear screen
 #endif
     first_time = 0;
   }
+  //get nodename
   struct utsname uts;
   uname(&uts);
+
+  //get user 
   char *user=getenv("USER");
+
+  //get current working directory
   char cwd[PATH_MAX];
   getcwd(cwd, sizeof(cwd));
   fflush(stdout); // Flush the output buffer
 
   char prompt_text[PATH_MAX*2];
-  snprintf(prompt_text, sizeof(prompt_text), "%s%s@%s:%s %s", user_color, user, uts.nodename,path_color, cwd);
+  snprintf(prompt_text, sizeof(prompt_text), "%s%s@%s:%s %s", user_color, user, uts.nodename, path_color, cwd);
   printf("%s%s $$ ", prompt_text, text_color);  // Print the shell prompt
 }
 
@@ -131,6 +136,11 @@ int shell_exit(char **args) {
     return 1; // Add return statement for consistency
 }
 
+int shell_clear(char **args) {
+    system("clear");
+    return 1; // Add return statement for consistency
+}
+
 int shell_usage(char **args) {
   if (args[1] == NULL) {
       printf("Command not given. Type usage <command>.\n");
@@ -162,6 +172,9 @@ int shell_usage(char **args) {
   else if (strcmp(args[1], "theme") == 0){
       printf("Type: theme THEME to change the theme of prompt\n");
     }
+  else if (strcmp(args[1], "clear") == 0){
+      printf("Type: clear to clear previous command output\n");
+  }
   else {
     printf("The command you gave: %s, is not part of the CSEShell's builtin command\n", args[1]);
     }
@@ -470,16 +483,9 @@ int main(void)
       continue;
     }
 
-    //in-built exit command
-    // if (strcmp(cmd[0], "exit") == 0){
-    //   // break;
-    //   return 0;
-    // }
-
     if (execute_builtin_command(cmd) == 1) {
       for (int i = 0; cmd[i] != NULL; i++)
       {
-        free(cmd[i]);
         cmd[i] = NULL;
       }
       continue; // Go to the next iteration of the loop
@@ -505,14 +511,6 @@ int main(void)
 
       // If execv returns, command execution has failed
       printf("Command %s not found\n", cmd[0]);
-
-      // Free the allocated memory for the command arguments before exiting
-      for (int i = 0; cmd[i] != NULL; i++)
-      {
-        free(cmd[i]);
-        cmd[i] = NULL;
-      }
-      memset(cwd, '\0', sizeof(cwd)); // clear the cwd array
       exit(1);
     }
 
@@ -527,19 +525,25 @@ int main(void)
       
       //printf(("parent process\n")); //debugging line of code
       // if child terminates properly,
-      if (WIFEXITED(status))
+      if (!WIFEXITED(status))
       {
+        perror("Problem Child");
+      }
+      else{
         child_exit_status = WEXITSTATUS(status);
-        for (int i = 0; cmd[i] != NULL; i++)
-        {
-          free(cmd[i]);
-          cmd[i] = NULL;
+        if (child_exit_status){
+          printf("Please input a valid system program\n");
         }
       } // checks child_exit_status and do something about it
 
+      for (int i = 0; cmd[i] != NULL; i++)
+      {
+        cmd[i] = NULL;
+      }
+
       printf("CPU time used: User = %ld.%06lds, System = %ld.%06lds\n",
-               (long)usage.ru_utime.tv_sec, (long)usage.ru_utime.tv_usec,
-               (long)usage.ru_stime.tv_sec, (long)usage.ru_stime.tv_usec);
+               usage.ru_utime.tv_sec, usage.ru_utime.tv_usec,
+               usage.ru_stime.tv_sec, usage.ru_stime.tv_usec);
       
       shell_resource();
     }

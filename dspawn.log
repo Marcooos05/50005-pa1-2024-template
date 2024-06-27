@@ -274,3 +274,39 @@ PID 714 Daemon writing line 8 to the file.
 PID 667 Daemon writing line 9 to the file.  
 PID 698 Daemon writing line 9 to the file.  
 PID 714 Daemon writing line 9 to the file.  
+Daemon process running with PID: 22702, PPID: 430, opening logfile with FD 3
+Current working directory: /
+PID 22702 Daemon writing line 0 to the file.  
+Daemon process running with PID: 22739, PPID: 430, opening logfile with FD 3
+Current working directory: /
+PID 22739 Daemon writing line 0 to the file.  
+Daemon process running with PID: 22776, PPID: 430, opening logfile with FD 3
+Current working directory: /
+PID 22776 Daemon writing line 0 to the file.  
+PID 22702 Daemon writing line 1 to the file.  
+PID 22739 Daemon writing line 1 to the file.  
+PID 22776 Daemon writing line 1 to the file.  
+PID 22702 Daemon writing line 2 to the file.  
+PID 22739 Daemon writing line 2 to the file.  
+PID 22776 Daemon writing line 2 to the file.  
+PID 22702 Daemon writing line 3 to the file.  
+PID 22739 Daemon writing line 3 to the file.  
+PID 22776 Daemon writing line 3 to the file.  
+PID 22702 Daemon writing line 4 to the file.  
+PID 22739 Daemon writing line 4 to the file.  
+PID 22776 Daemon writing line 4 to the file.  
+PID 22702 Daemon writing line 5 to the file.  
+PID 22739 Daemon writing line 5 to the file.  
+PID 22776 Daemon writing line 5 to the file.  
+PID 22702 Daemon writing line 6 to the file.  
+PID 22739 Daemon writing line 6 to the file.  
+PID 22776 Daemon writing line 6 to the file.  
+PID 22702 Daemon writing line 7 to the file.  
+PID 22739 Daemon writing line 7 to the file.  
+PID 22776 Daemon writing line 7 to the file.  
+PID 22702 Daemon writing line 8 to the file.  
+PID 22739 Daemon writing line 8 to the file.  
+PID 22776 Daemon writing line 8 to the file.  
+PID 22702 Daemon writing line 9 to the file.  
+PID 22739 Daemon writing line 9 to the file.  
+PID 22776 Daemon writing line 9 to the file.  

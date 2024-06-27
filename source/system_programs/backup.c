@@ -35,5 +35,5 @@ int main(){
 
     system(move_cmd);
 
-    return 0;
+    return EXIT_SUCCESS;
 }

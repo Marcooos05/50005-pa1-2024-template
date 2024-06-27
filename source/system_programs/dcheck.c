@@ -21,5 +21,5 @@ int main(){
     // Close the pipe
     pclose(fp);
 
-    return 0;
+    return EXIT_SUCCESS;
 }

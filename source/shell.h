@@ -58,7 +58,8 @@ const char *builtin_commands[] = {
     "setenv", // Sets or modifies an environment variable for this shell session
     "unsetenv", // Removes an environment variable from the shell
     "color",
-    "theme"
+    "theme",
+    "clear"
     };
 
 /*
@@ -67,6 +68,7 @@ Handler of each shell builtin function
 int shell_cd(char **args);
 int shell_help(char **args);
 int shell_exit(char **args);
+int shell_clear(char **args);
 int shell_usage(char **args);
 int list_env(char **args);
 int set_env_var(char **args);
@@ -86,5 +88,6 @@ int (*builtin_command_func[])(char **) = {
     &set_env_var,  // builtin_command_func[5]: setenv
     &unset_env_var, // builtin_command_func[6]: unsetenv
     &shell_color,
-    &shell_theme
+    &shell_theme,
+    &shell_clear
 };
