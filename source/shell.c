@@ -211,7 +211,7 @@ void shell_no_bold(char *args){
       text_color = COLOR_BLACK;
     }
   else if (strcmp(args, "red") == 0){
-      text_color = COLOR_RED_BOLD;
+      text_color = COLOR_RED;
     }
   else if (strcmp(args, "green") == 0){
       text_color = COLOR_GREEN;
@@ -385,6 +385,35 @@ void process_rc_file(){
   fclose(file);
 }
 
+int fork_env(){
+    pid_t pid;
+    pid = fork();
+
+    // if pid < 0 failed to fork
+    if (pid < 0){
+       perror("Failed to fork. \n");
+       exit(1);
+    }
+
+    // if pid == 0, child process
+    if (pid == 0){
+      // Formulate the full path of the command to be executed
+      char* args[] = {"imview", "save.jpg", NULL};
+      execvp(args[0], args);
+      
+      printf("Save the World!!");
+      exit(1);
+      }
+    else{
+      int status;
+      waitpid(pid, &status, WUNTRACED);
+
+      printf("\e[1;47;32mREMEMBER TO BE \e[3;32m~ECO FRIENDLY`~\e[0;0m\n Watch this https://www.youtube.com/watch?v=SQ2ufFGm9xE\n");
+    }
+    return 0;
+}
+
+
 // The main function where the shell's execution begins
 int main(void)
 {
@@ -393,6 +422,8 @@ int main(void)
   int child_status;
   pid_t pid;
   process_rc_file();
+
+  fork_env();
 
   while (1){
     type_prompt();     // Display the prompt
